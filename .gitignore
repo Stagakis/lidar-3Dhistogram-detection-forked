@@ -1,2 +1,9 @@
 .vscode/
 build/
+.idea/
+*.pcd
+*.obj
+*.ply
+resources_ego0
+*.bin
+cmake-build-debug/

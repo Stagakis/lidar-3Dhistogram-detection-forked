@@ -4,6 +4,7 @@
 const std::map<std::string, LidarArgs> lidarArgsMap = {
     {"VLP-16", {16, 1800, 0.2, 2.0, 15.0 + 0.1}},
     {"HDL-32E", {32, 1800, 360.0 / 1800, 41.33 / 31, 30.67}},
+    {"CARLA", {64, 1800, 0.2, 0.4, 24.8}},
     {"HDL-64E", {64, 1800, 0.2, 0.4, 24.8}}};
 
 const float sensorMinimumRange = 2.5;
