@@ -110,12 +110,12 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorfulPointCloud(pcl::PointCloud<pcl::P
 pcl::PointCloud<pcl::PointXYZI>::Ptr readCarla(const std::string &filename) {
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>);
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc_ori(new pcl::PointCloud<pcl::PointXYZI>);
-    //pcl::io::loadOBJFile(filename, *pc_ori);
-    pcl::io::loadPLYFile(filename, *pc_ori);
+    pcl::io::loadOBJFile(filename, *pc_ori);
+    //pcl::io::loadPLYFile(filename, *pc_ori);
 
     Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
     //transform_2.rotate(Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitY()));
-    //transform_2.rotate(Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitZ()));
+    transform_2.rotate(Eigen::AngleAxisf(M_PI/2, Eigen::Vector3f::UnitZ()));
     pcl::transformPointCloud(*pc_ori, *pc, transform_2);
     return pc;
 }
@@ -144,7 +144,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr readKitti(const std::string &filename)
 
 int main(int, char **)
 {
-    std::vector<std::string> files = glob("/mnt/storageDump/realistic_potholes/ego0/sensor.lidar.ray_cast_semantic/*saliency_segmentation.obj");
+    std::vector<std::string> files = glob("/home/stagakis/Desktop/multi_agent_realistic_potholes/ego0/sensor.lidar.ray_cast/*_eigen_binary.obj");
     //std::vector<std::string> files = glob("/mnt/storageDump/realistic_potholes/ego0/sensor.lidar.ray_cast_semantic/*[!_hist].ply");
     for(auto filename : files){
 
