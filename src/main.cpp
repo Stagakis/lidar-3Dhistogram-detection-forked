@@ -115,7 +115,9 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr readCarla(const std::string &filename) {
 
     Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
     //transform_2.rotate(Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitY()));
-    transform_2.rotate(Eigen::AngleAxisf(M_PI/2, Eigen::Vector3f::UnitZ()));
+    //transform_2.rotate(Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitZ()));
+
+    transform_2.rotate(Eigen::AngleAxisf(M_PI_2, Eigen::Vector3f::UnitZ()));
     pcl::transformPointCloud(*pc_ori, *pc, transform_2);
     return pc;
 }
@@ -148,31 +150,29 @@ int main(int, char **)
     //std::vector<std::string> files = glob("/mnt/storageDump/realistic_potholes/ego0/sensor.lidar.ray_cast_semantic/*[!_hist].ply");
     for(auto filename : files){
 
-    //auto pc = readKitti("../004000.bin");
-    // auto pc = readCarla("../3045_saliency_segmentation_without.obj");
-    auto pc = readCarla(filename);
+        auto pc = readCarla(filename);
 
-    auto lidarArg = lidarArgsMap.at("HDL-64E");
-    cv::Mat disp = projectPointCloud(pc, lidarArg, [](double q) { return q < M_PI_4 && q > -M_PI_4; });
-    cv::Mat1s uHist, vHist;
+        auto lidarArg = lidarArgsMap.at("HDL-64E");
+        cv::Mat disp = projectPointCloud(pc, lidarArg, [](double q) { return q < M_PI_4 && q > -M_PI_4; });
+        cv::Mat1s uHist, vHist;
 
-    uv_histogram(disp, uHist, vHist);
-    std::vector<cv::Point3i> pList;
-    auto filter = lidarArg.nScan - lidarArg.angBottom / lidarArg.angResY;
-    blank_filter(vHist, pList, 5, filter);
-    double k, b;
-    ransac(pList, k, b, 1000, 2);
-    auto result = split3(disp, k, b, 3);
+        uv_histogram(disp, uHist, vHist);
+        std::vector<cv::Point3i> pList;
+        auto filter = lidarArg.nScan - lidarArg.angBottom / lidarArg.angResY;
+        blank_filter(vHist, pList, 5, filter);
+        double k, b;
+        ransac(pList, k, b, 1000, 2);
+        auto result = split3(disp, k, b, 3);
 
-    ////////////////REVERSE THE TRANSFORMATIONS BEFORE SAVING
-
-    Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
-    transform_2.rotate(Eigen::AngleAxisf(-M_PI, Eigen::Vector3f::UnitZ()));
-    transform_2.rotate(Eigen::AngleAxisf(-M_PI, Eigen::Vector3f::UnitY()));
-    auto colored_pcl = colorfulPointCloud(pc, lidarArg, result);
-    pcl::transformPointCloud(*colored_pcl, *colored_pcl, transform_2);
-    pcl::io::savePLYFileASCII(filename.substr(0, filename.size()-4) + "_hist.ply", *colored_pcl);
-    /////////////////////////////////////
+        ////////////////REVERSE THE TRANSFORMATIONS BEFORE SAVING
+        Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
+        //transform_2.rotate(Eigen::AngleAxisf(-M_PI, Eigen::Vector3f::UnitZ()));
+        //transform_2.rotate(Eigen::AngleAxisf(-M_PI, Eigen::Vector3f::UnitY()));
+        transform_2.rotate(Eigen::AngleAxisf(-M_PI_2, Eigen::Vector3f::UnitZ()));
+        auto colored_pcl = colorfulPointCloud(pc, lidarArg, result);
+        pcl::transformPointCloud(*colored_pcl, *colored_pcl, transform_2);
+        pcl::io::savePLYFileASCII(filename.substr(0, filename.size()-4) + "_hist.ply", *colored_pcl);
+        /////////////////////////////////////
 
     }
 #ifdef SHOW
